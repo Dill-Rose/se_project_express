@@ -1,4 +1,9 @@
 const User = require("../models/user");
+const {
+  INTERNAL_SERVER_ERROR,
+  BAD_REQUEST,
+  NOT_FOUND,
+} = require("../utils/errors");
 
 /// GET /users
 
@@ -9,7 +14,9 @@ const getUsers = (req, res) => {
     })
     .catch((err) => {
       console.error(err);
-      return res.status(500).send({ message: err.message });
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error occurred while fetching users" });
     });
 };
 
@@ -22,9 +29,11 @@ const createUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "ValidationError") {
-        return res.status(400).send({ message: err.message });
+        return res.status(BAD_REQUEST).send({ message: err.message });
       }
-      return res.status(500).send({ message: err.message });
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error occurred while creating the user" });
     });
 };
 
@@ -34,7 +43,7 @@ const getUser = (req, res) => {
     .orFail()
     .then((user) => {
       if (!user) {
-        return res.status(404).send({ message: "User not found" });
+        return res.status(NOT_FOUND).send({ message: "User not found" });
       }
       res.send(user);
       return user;
@@ -42,12 +51,14 @@ const getUser = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
-        return res.status(404).send({ message: "User not found" });
+        return res.status(NOT_FOUND).send({ message: "User not found" });
       }
       if (err.name === "CastError") {
-        return res.status(400).send({ message: "Invalid user ID" });
+        return res.status(BAD_REQUEST).send({ message: "Invalid user ID" });
       }
-      return res.status(500).send({ message: err.message });
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: "An error occurred while fetching the user" });
     });
 };
 

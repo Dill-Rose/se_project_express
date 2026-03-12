@@ -1,4 +1,9 @@
 const ClothingItem = require("../models/clothingItems");
+const {
+  INTERNAL_SERVER_ERROR,
+  BAD_REQUEST,
+  NOT_FOUND,
+} = require("../utils/errors");
 
 const createClothingItem = (req, res) => {
   //  console.log("This is the request object:");
@@ -11,7 +16,7 @@ const createClothingItem = (req, res) => {
     name,
     weather,
     imageUrl,
-    owner: "507f1f77bcf86cd799439011", // replace with req.user._id when authentication is implemented
+    owner: req.user._id, // replace with req.user._id when authentication is implemented
   })
     .then((item) => {
       console.log("This is the created item:");
@@ -20,10 +25,10 @@ const createClothingItem = (req, res) => {
     })
     .catch((err) => {
       if (err.name === "ValidationError") {
-        res.status(400).send({ message: "Invalid data provided" });
+        res.status(BAD_REQUEST).send({ message: "Invalid data provided" });
       } else {
         res
-          .status(500)
+          .status(INTERNAL_SERVER_ERROR)
           .send({ message: "An error occurred while creating the item" });
       }
     });
@@ -37,7 +42,7 @@ const getClothingItems = (req, res) => {
     .catch((err) => {
       console.error(err);
       res
-        .status(500)
+        .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error occurred while fetching items" });
     });
 };
@@ -47,7 +52,7 @@ const deleteClothingItem = (req, res) => {
   ClothingItem.findById(id)
     .orFail()
     .then((item) => {
-      if (item.owner.toString() !== "507f1f77bcf86cd799439011") {
+      if (item.owner.toString() !== req.user._id) {
         return res.status(403).send({ message: "Forbidden" });
       }
       return ClothingItem.findByIdAndDelete(id).then(() =>
@@ -57,12 +62,13 @@ const deleteClothingItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
-        return res.status(404).send({ message: "Item not found" });
-      } if (err.name === "CastError") {
-        return res.status(400).send({ message: "Invalid item ID" });
+        return res.status(NOT_FOUND).send({ message: "Item not found" });
+      }
+      if (err.name === "CastError") {
+        return res.status(BAD_REQUEST).send({ message: "Invalid item ID" });
       }
       return res
-        .status(500)
+        .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error occurred while deleting the item" });
     });
 };
@@ -71,7 +77,7 @@ const likeItem = (req, res) => {
   const { id } = req.params;
   ClothingItem.findByIdAndUpdate(
     id,
-    { $addToSet: { likes: "507f1f77bcf86cd799439011" } },
+    { $addToSet: { likes: req.user._id } },
     { new: true }
   )
     .orFail()
@@ -79,12 +85,13 @@ const likeItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
-        return res.status(404).send({ message: "Item not found" });
-      } if (err.name === "CastError") {
-        return res.status(400).send({ message: "Invalid item ID" });
+        return res.status(NOT_FOUND).send({ message: "Item not found" });
+      }
+      if (err.name === "CastError") {
+        return res.status(BAD_REQUEST).send({ message: "Invalid item ID" });
       }
       return res
-        .status(500)
+        .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error occurred while liking the item" });
     });
 };
@@ -93,7 +100,7 @@ const dislikeItem = (req, res) => {
   const { id } = req.params;
   ClothingItem.findByIdAndUpdate(
     id,
-    { $pull: { likes: "507f1f77bcf86cd799439011" } },
+    { $pull: { likes: req.user._id } },
     { new: true }
   )
     .orFail()
@@ -101,12 +108,13 @@ const dislikeItem = (req, res) => {
     .catch((err) => {
       console.error(err);
       if (err.name === "DocumentNotFoundError") {
-        return res.status(404).send({ message: "Item not found" });
-      } if (err.name === "CastError") {
-        return res.status(400).send({ message: "Invalid item ID" });
+        return res.status(NOT_FOUND).send({ message: "Item not found" });
+      }
+      if (err.name === "CastError") {
+        return res.status(BAD_REQUEST).send({ message: "Invalid item ID" });
       }
       return res
-        .status(500)
+        .status(INTERNAL_SERVER_ERROR)
         .send({ message: "An error occurred while disliking the item" });
     });
 };
