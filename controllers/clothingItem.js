@@ -29,7 +29,7 @@ const createClothingItem = (req, res) => {
       } else {
         res
           .status(INTERNAL_SERVER_ERROR)
-          .send({ message: "An error occurred while creating the item" });
+          .send({ message: "An error has occurred on the server" });
       }
     });
 };
@@ -43,7 +43,7 @@ const getClothingItems = (req, res) => {
       console.error(err);
       res
         .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error occurred while fetching items" });
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
@@ -69,7 +69,7 @@ const deleteClothingItem = (req, res) => {
       }
       return res
         .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error occurred while deleting the item" });
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
@@ -92,7 +92,7 @@ const likeItem = (req, res) => {
       }
       return res
         .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error occurred while liking the item" });
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
@@ -115,7 +115,7 @@ const dislikeItem = (req, res) => {
       }
       return res
         .status(INTERNAL_SERVER_ERROR)
-        .send({ message: "An error occurred while disliking the item" });
+        .send({ message: "An error has occurred on the server" });
     });
 };
 
