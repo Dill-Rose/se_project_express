@@ -74,6 +74,8 @@ const deleteClothingItem = (req, res) => {
 };
 
 const likeItem = (req, res) => {
+  console.log("Item ID:", req.params.id);
+  console.log("User ID:", req.user._id);
   const { id } = req.params;
   ClothingItem.findByIdAndUpdate(
     id,

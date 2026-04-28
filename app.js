@@ -1,6 +1,11 @@
 const express = require("express");
+const { createUser, login } = require("./controllers/users");
+const cors = require("cors");
 
 const app = express();
+app.use(cors());
+app.use(express.json());
+
 const { PORT = 3001 } = process.env;
 const mongoose = require("mongoose");
 const mainRouter = require("./routes/index");
@@ -12,14 +17,9 @@ mongoose
   })
   .catch(console.error);
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: "69b0d80aca2f13dcb0a5be9e", // paste the _id of the test user created in the previous step
-  };
-  next();
-});
+app.post("/signin", login);
+app.post("/signup", createUser);
 
-app.use(express.json());
 app.use("/", mainRouter);
 
 app.listen(PORT, () => {
