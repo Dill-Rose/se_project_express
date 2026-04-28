@@ -1,5 +1,5 @@
 const express = require("express");
-const { createUser, login } = require("./controllers/users");
+
 const cors = require("cors");
 
 const app = express();
@@ -16,6 +16,8 @@ mongoose
     console.log("Connected to DB");
   })
   .catch(console.error);
+
+const { createUser, login } = require("./controllers/users");
 
 app.post("/signin", login);
 app.post("/signup", createUser);
