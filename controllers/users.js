@@ -5,6 +5,9 @@ const {
   INTERNAL_SERVER_ERROR,
   BAD_REQUEST,
   NOT_FOUND,
+  CONFLICT,
+  UNAUTHORIZED,
+  FORBIDDEN,
 } = require("../utils/errors");
 
 const { JWT_SECRET } = require("../utils/config");
@@ -34,6 +37,16 @@ const createUser = (req, res) => {
     email,
     password: password ? "[HIDDEN]" : "undefined",
   });
+  if (
+    !email ||
+    !password ||
+    typeof email !== "string" ||
+    typeof password !== "string"
+  ) {
+    return res
+      .status(BAD_REQUEST)
+      .send({ message: "Email and password are required" });
+  }
   bcrypt
     .hash(password, 10)
     .then((hash) => User.create({ name, avatar, email, password: hash }))
@@ -49,7 +62,7 @@ const createUser = (req, res) => {
     .catch((err) => {
       console.error("Full error:", err);
       if (err.code === 11000) {
-        return res.status(409).send({ message: "Email already exists" });
+        return res.status(CONFLICT).send({ message: "Email already exists" });
       }
       if (err.name === "ValidationError") {
         return res.status(BAD_REQUEST).send({ message: "Invalid data" });
@@ -87,6 +100,11 @@ const getCurrentUser = (req, res) => {
 
 const login = (req, res) => {
   const { email, password } = req.body;
+  if (!email || !password) {
+    return res.status(BAD_REQUEST).send({
+      message: "Email and password are required",
+    });
+  }
 
   User.findUserByCredentials(email, password)
     .then((user) => {
@@ -96,7 +114,7 @@ const login = (req, res) => {
       res.send({ token });
     })
     .catch((err) => {
-      res.status(401).send({ message: err.message });
+      res.status(UNAUTHORIZED).send({ message: err.message });
     });
 };
 

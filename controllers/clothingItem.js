@@ -3,6 +3,8 @@ const {
   INTERNAL_SERVER_ERROR,
   BAD_REQUEST,
   NOT_FOUND,
+  FORBIDDEN,
+  CONFLICT,
 } = require("../utils/errors");
 
 const createClothingItem = (req, res) => {
@@ -53,7 +55,7 @@ const deleteClothingItem = (req, res) => {
     .orFail()
     .then((item) => {
       if (item.owner.toString() !== req.user._id) {
-        return res.status(403).send({ message: "Forbidden" });
+        return res.status(FORBIDDEN).send({ message: "Forbidden" });
       }
       return ClothingItem.findByIdAndDelete(id).then(() =>
         res.send({ message: "Item deleted" })
