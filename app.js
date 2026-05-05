@@ -19,9 +19,6 @@ mongoose
 
 const { createUser, login } = require("./controllers/users");
 
-app.post("/signin", login);
-app.post("/signup", createUser);
-
 app.use("/", mainRouter);
 
 app.listen(PORT, () => {
