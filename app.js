@@ -17,8 +17,6 @@ mongoose
   })
   .catch(console.error);
 
-const { createUser, login } = require("./controllers/users");
-
 app.use("/", mainRouter);
 
 app.listen(PORT, () => {

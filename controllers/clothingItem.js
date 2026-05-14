@@ -4,7 +4,6 @@ const {
   BAD_REQUEST,
   NOT_FOUND,
   FORBIDDEN,
-  CONFLICT,
 } = require("../utils/errors");
 
 const createClothingItem = (req, res) => {

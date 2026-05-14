@@ -7,7 +7,6 @@ const {
   NOT_FOUND,
   CONFLICT,
   UNAUTHORIZED,
-  FORBIDDEN,
 } = require("../utils/errors");
 
 const { JWT_SECRET } = require("../utils/config");
@@ -47,17 +46,27 @@ const createUser = (req, res) => {
       .status(BAD_REQUEST)
       .send({ message: "Email and password are required" });
   }
-  bcrypt
-    .hash(password, 10)
-    .then((hash) => User.create({ name, avatar, email, password: hash }))
-    .then((user) => {
-      console.log("User created successfully");
-      res.status(201).send({
-        _id: user._id,
-        name: user.name,
-        avatar: user.avatar,
-        email: user.email,
-      });
+
+  // Check if the email already exists
+  return User.findOne({ email })
+    .then((existingUser) => {
+      if (existingUser) {
+        return res.status(CONFLICT).send({ message: "Email already exists" });
+      }
+      // If email unique, hash the password and create the user
+
+      return bcrypt
+        .hash(password, 10)
+        .then((hash) => User.create({ name, avatar, email, password: hash }))
+        .then((user) => {
+          console.log("User created successfully");
+          res.status(201).send({
+            _id: user._id,
+            name: user.name,
+            avatar: user.avatar,
+            email: user.email,
+          });
+        });
     })
     .catch((err) => {
       console.error("Full error:", err);
@@ -106,7 +115,7 @@ const login = (req, res) => {
     });
   }
 
-  User.findUserByCredentials(email, password)
+  return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, JWT_SECRET, {
         expiresIn: "7d",
